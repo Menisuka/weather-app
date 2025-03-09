@@ -1,7 +1,12 @@
-import axios from 'axios';
+import axios from "axios";
+import { setupCache } from "axios-cache-interceptor";
+
+//Create a cashed axios
+const cachedAxios = setupCache(axios);
 
 const API_KEY = import.meta.env.VITE_OPENWEATHERMAP_API_KEY;
-const BASE_URL = 'https://api.openweathermap.org/data/2.5/weather';
+const BASE_URL = "/api/data/2.5/weather"; // Use the proxy
+// const BASE_URL = 'https://api.openweathermap.org/data/2.5/weather';
 
 // Using interface to maintain type safety
 export interface WeatherData {
@@ -27,17 +32,16 @@ export interface WeatherData {
 
 export const fetchWeather = async (query: string): Promise<WeatherData> => {
   try {
-    const response = await axios.get(BASE_URL, {
+    const response = await cachedAxios.get(BASE_URL, {
       params: {
         q: query,
         appid: API_KEY,
-        units: 'metric',
+        units: "metric",
       },
     });
-
     return response.data;
   } catch (error) {
-    console.error('Error fetching weather data:', error);
+    console.error("Error fetching weather data:", error);
     throw error;
   }
 };
