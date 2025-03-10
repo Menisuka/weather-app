@@ -1,12 +1,13 @@
 import axios from "axios";
-import { setupCache } from "axios-cache-interceptor";
+// import { setupCache } from "axios-cache-interceptor";
 
 //Create a cashed axios
-const cachedAxios = setupCache(axios);
+// const cachedAxios = setupCache(axios);
+const cachedAxios = axios;
 
 const API_KEY = import.meta.env.VITE_OPENWEATHERMAP_API_KEY;
 // const BASE_URL = "/api/data/2.5/weather"; // Use the proxy
-const BASE_URL = 'https://api.openweathermap.org/data/2.5/weather';
+const BASE_URL = import.meta.env.VITE_APP_API_URL;
 
 // Using interface to maintain type safety
 export interface WeatherData {

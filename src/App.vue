@@ -7,6 +7,18 @@
       Add Forecast
     </button>
 
+    <!-- Filter Input -->
+    <div class="field">
+      <div class="control">
+        <input
+          class="input"
+          type="text"
+          v-model="filterQuery"
+          placeholder="Filter by city"
+        />
+      </div>
+    </div>
+
     <!-- Modal for Adding Forecasts -->
     <div class="modal" :class="{ 'is-active': isModalOpen }">
       <div class="modal-background" @click="isModalOpen = false"></div>
@@ -75,6 +87,7 @@ export default defineComponent({
     const isModalOpen = ref(false);
     const currentPage = ref(1);
     const pageSize = 10;
+    const filterQuery = ref("");
 
     //Load weatherdata from local storage
     onMounted(() => {
@@ -108,20 +121,32 @@ export default defineComponent({
         alert("Failed to fetch weather data. Please try again.");
       }
     };
+
     //Remove forecast
     const removeForecast = (index: number) => {
       forecasts.value.splice(index, 1); //Remove weatherData
       localStorage.setItem("forecasts", JSON.stringify(forecasts.value)); //Update local storage
     };
 
+    // Filter forecasts based on the filter query
+    const filteredForecasts = computed(() => {
+      if (!filterQuery.value) {
+        return forecasts.value;
+      }
+      const query = filterQuery.value.toLowerCase();
+      return forecasts.value.filter((forecast) =>
+        forecast.name.toLowerCase().startsWith(query)
+      );
+    });
+
     //Pagination logic
     const totalPages = computed(() =>
-      Math.ceil(forecasts.value.length / pageSize)
+      Math.ceil(filteredForecasts.value.length / pageSize)
     );
     const paginatedForecast = computed(() => {
       const start = (currentPage.value - 1) * pageSize;
       const end = start + pageSize;
-      return forecasts.value.slice(start, end);
+      return filteredForecasts.value.slice(start, end);
     });
 
     const handlePageChange = (page: number) => {
@@ -134,6 +159,7 @@ export default defineComponent({
       currentPage,
       totalPages,
       paginatedForecast,
+      filterQuery,
       handleSearch,
       removeForecast,
       handlePageChange,

@@ -3,7 +3,11 @@
     <div v-if="forecasts.length === 0" class="notification is-warning">
       Please search for a forecast
     </div>
-    <div v-for="(forecasts, index) in forecasts" :key="index" class="box weather-card">
+    <div
+      v-for="(forecasts, index) in forecasts"
+      :key="index"
+      class="box weather-card"
+    >
       <h2 class="title is-4">
         {{ forecasts.name }}, {{ forecasts.sys.country }}
       </h2>
@@ -20,7 +24,11 @@
         />
         <p>{{ forecasts.weather[0].description }}</p>
       </div>
-      <button class="button is-danger is-small" @click="removeForecast(index)" aria-label="Remove forecast">
+      <button
+        class="button is-danger is-small"
+        @click="removeForecast(index)"
+        aria-label="Remove forecast"
+      >
         Remove
       </button>
     </div>
