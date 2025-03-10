@@ -5,8 +5,8 @@ import { setupCache } from "axios-cache-interceptor";
 const cachedAxios = setupCache(axios);
 
 const API_KEY = import.meta.env.VITE_OPENWEATHERMAP_API_KEY;
-const BASE_URL = "/api/data/2.5/weather"; // Use the proxy
-// const BASE_URL = 'https://api.openweathermap.org/data/2.5/weather';
+// const BASE_URL = "/api/data/2.5/weather"; // Use the proxy
+const BASE_URL = 'https://api.openweathermap.org/data/2.5/weather';
 
 // Using interface to maintain type safety
 export interface WeatherData {
