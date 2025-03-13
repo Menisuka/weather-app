@@ -4,44 +4,70 @@
       Please search for a forecast
     </div>
     <div
-      v-for="(forecasts, index) in forecasts"
+      v-for="(forecast, index) in forecasts"
       :key="index"
       class="box weather-card"
+      @click="openModal(forecast)"
     >
       <h2 class="title is-4">
-        {{ forecasts.name }}, {{ forecasts.sys.country }}
+        {{ forecast.name }}, {{ forecast.sys?.country || "N/A" }}
       </h2>
       <div class="content">
-        <p><strong>Humidity:</strong> {{ forecasts.main.humidity }}%</p>
-        <p><strong>Wind Speed:</strong> {{ forecasts.wind.speed }} m/s</p>
-        <p><strong>Pressure:</strong> {{ forecasts.main.pressure }} hPa</p>
-        <p><strong>Sunrise:</strong> {{ formatTime(forecasts.sys.sunrise) }}</p>
-        <p><strong>Sunset:</strong> {{ formatTime(forecasts.sys.sunset) }}</p>
-        <p><strong>Temperature:</strong> {{ forecasts.main.temp }}°C</p>
+        <p>
+          <strong>Humidity:</strong> {{ forecast.main?.humidity || "N/A" }}%
+        </p>
+        <p>
+          <strong>Wind Speed:</strong> {{ forecast.wind?.speed || "N/A" }} m/s
+        </p>
+        <p>
+          <strong>Pressure:</strong> {{ forecast.main?.pressure || "N/A" }} hPa
+        </p>
+        <p>
+          <strong>Sunrise:</strong>
+          {{ formatTime(forecast.sys?.sunrise) || "N/A" }}
+        </p>
+        <p>
+          <strong>Sunset:</strong>
+          {{ formatTime(forecast.sys?.sunset) || "N/A" }}
+        </p>
+        <p>
+          <strong>Temperature:</strong> {{ forecast.main?.temp || "N/A" }}°C
+        </p>
         <img
-          :src="`https://openweathermap.org/img/wn/${forecasts.weather[0].icon}.png`"
-          :alt="forecasts.weather[0].description"
+          v-if="forecast.weather?.[0]?.icon"
+          :src="`https://openweathermap.org/img/wn/${forecast.weather[0].icon}.png`"
+          :alt="forecast.weather?.[0]?.description || 'Weather icon'"
         />
-        <p>{{ forecasts.weather[0].description }}</p>
+        <p>{{ forecast.weather?.[0]?.description || "N/A" }}</p>
       </div>
       <button
         class="button is-danger is-small"
-        @click="removeForecast(index)"
+        @click.stop="removeForecast(index)"
         aria-label="Remove forecast"
       >
         Remove
       </button>
     </div>
+    <LongTermForecastModal
+      :isOpen="isModalOpen"
+      :cityName="selectedCityName"
+      :countryCode="selectedCountryCode"
+      @close="closeModal"
+    />
   </div>
 </template>
-  
+
 <script lang="ts">
-import { defineComponent } from "vue";
+import { defineComponent, ref } from "vue";
 import type { PropType } from "vue";
+import LongTermForecastModal from "../components/LongTermForecastModal.vue";
 import type { WeatherData } from "../weatherService";
 
 export default defineComponent({
   name: "WeatherList",
+  components: {
+    LongTermForecastModal,
+  },
   props: {
     forecasts: {
       type: Array as PropType<WeatherData[]>,
@@ -53,19 +79,42 @@ export default defineComponent({
     },
   },
   setup() {
+    const isModalOpen = ref(false);
+    const selectedCityName = ref("");
+    const selectedCountryCode = ref("");
+
+    const openModal = (forecast: WeatherData) => {
+      selectedCityName.value = forecast.name;
+      selectedCountryCode.value = forecast.sys.country;
+      isModalOpen.value = true;
+    };
+
+    const closeModal = () => {
+      isModalOpen.value = false;
+    };
+
     const formatTime = (timestamp: number): string => {
-      return new Date(timestamp * 1000).toLocaleTimeString();
+      try {
+        return new Date(timestamp * 1000).toLocaleTimeString();
+      } catch (error) {
+        console.error("Error formatting time:", error);
+        return "Invalid time";
+      }
     };
 
     return {
+      isModalOpen,
+      selectedCityName,
+      selectedCountryCode,
+      openModal,
+      closeModal,
       formatTime,
     };
   },
 });
 </script>
-  
+
 <style scoped>
-/* Grid layout */
 .weather-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
@@ -80,5 +129,6 @@ export default defineComponent({
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  cursor: pointer;
 }
 </style>
